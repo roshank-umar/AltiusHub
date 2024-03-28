@@ -14,6 +14,5 @@ POSTGRES_HOST="ep-red-mountain-a4bidj5z-pooler.us-east-1.aws.neon.tech"
 POSTGRES_PASSWORD="tNRUS83BjTpr"
 POSTGRES_DATABASE="verceldb"
 
-# `openssl rand -base64 32`
 AUTH_SECRET=
 AUTH_URL=http://localhost:3000/api/auth
