@@ -5,47 +5,51 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
  
 const FormSchema = z.object({
-  id: z.string(),
-  customerId: z.string({
-    invalid_type_error: 'Please select a customer.',
+  gstinNumber: z.string({
+    invalid_type_error: 'Please Enter a GST Number.',
   }),
-  amount: z.coerce
+  invoiceNumber: z.string(),
+  customerName: z.string({
+    invalid_type_error: 'Please Enter a customer Name.',
+  }),
+  billingAddress: z.string({
+    invalid_type_error: 'Please Enter a Billing Address.',
+  }),
+  shippingAddress: z.string({
+    invalid_type_error: 'Please Enter a Shipping Address.',
+  }),
+  totalAmount: z.coerce
   .number()
   .gt(0, { message: 'Please enter an amount greater than $0.' }),
-  status: z.enum(['pending', 'paid'],{
-    invalid_type_error: 'Please select an invoice status.',
-  }),
+  
   date: z.string(),
 });
  
 export type State = {
+    items: any;
     errors?: {
-      customerId?: string[];
+      customerName?: string[];
       amount?: string[];
-      status?: string[];
     };
     message?: string | null;
   };
+  const CreateInvoice = FormSchema.omit({ id: true, date: true });
 export async function createInvoice(prevState: State, formData: FormData) {
-    const validatedFields = CreateInvoice.safeParse({
-      customerId: formData.get('customerId'),
-      amount: formData.get('amount'),
-      status: formData.get('status'),
+    const {customerName,invoiceNumber,gstinNumber,billingAddress,shippingAddress,totalAmount} = CreateInvoice.parse({
+      customerName: formData.get('customerName'),
+      invoiceNumber: formData.get('invoiceNumber'),
+      gstinNumber: formData.get('gstinNumber'),
+      billingAddress: formData.get('billingAddress'),
+      shippingAddress: formData.get('shippingAddress'),
+      totalAmount: formData.get('amount')
     });
-    if (!validatedFields.success) {
-        return {
-          errors: validatedFields.error.flatten().fieldErrors,
-          message: 'Missing Fields. Failed to Create Invoice.',
-        };
-      }
-   
-    const amountInCents = amount * 100;
+
     const date = new Date().toISOString().split('T')[0];
    
     try {
       await sql`
-        INSERT INTO invoices (customer_id, amount, status, date)
-        VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+        INSERT INTO invoicesData (CustomerName, InvoiceNumber, GSTIN, BillingAddress, ShippingAddress,TotalAmount,Date)
+        VALUES (${customerName}, ${invoiceNumber},${gstinNumber},${billingAddress},${shippingAddress},${totalAmount},${date})
       `;
     } catch (error) {
       return {
@@ -59,21 +63,21 @@ export async function createInvoice(prevState: State, formData: FormData) {
 
   const UpdateInvoice = FormSchema.omit({ id: true, date: true });
  
-// ...
  
 export async function updateInvoice(id: string, formData: FormData) {
-  const { customerId, amount, status } = UpdateInvoice.parse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
+  const { customerName,gstinNumber,billingAddress,shippingAddress,totalAmount } = UpdateInvoice.parse({
+    customerName: formData.get('customerName'),
+      gstinNumber: formData.get('gstinNumber'),
+      billingAddress: formData.get('billingAddress'),
+      shippingAddress: formData.get('shippingAddress'),
+      totalAmount: formData.get('amount')
   });
  
-  const amountInCents = amount * 100;
  
   await sql`
-    UPDATE invoices
-    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-    WHERE id = ${id}
+    UPDATE invoicesData
+    SET CustomerName = ${customerName},GSTIN = ${gstinNumber},BillingAddress = ${billingAddress},ShippingAddress = ${shippingAddress}, TotalAmount = ${totalAmount}
+    WHERE Id = ${id}
   `;
  
   revalidatePath('/dashboard/invoices');
@@ -82,7 +86,7 @@ export async function updateInvoice(id: string, formData: FormData) {
 
 export async function deleteInvoice(id: string) {
     try {
-      await sql`DELETE FROM invoices WHERE id = ${id}`;
+      await sql`DELETE FROM invoicesData WHERE Id = ${id}`;
       revalidatePath('/dashboard/invoices');
       return { message: 'Deleted Invoice.' };
     } catch (error) {

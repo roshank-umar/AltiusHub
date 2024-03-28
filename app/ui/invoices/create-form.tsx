@@ -1,6 +1,5 @@
 'use client';
 
-import { CustomerField } from '@/app/lib/definitions';
 import Link from 'next/link';
 import {
   CheckIcon,
@@ -11,52 +10,127 @@ import {
 import { Button } from '@/app/ui/button';
 import {createInvoice} from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
+import { useState } from 'react';
+import { Princess_Sofia } from 'next/font/google';
+import { Invoice } from '../../lib/definitions';
 
-export default function Form({customers}:{customers: CustomerField[]}) {
+export default function Form({invoices}:{invoices: Invoice[]}) {
   const initialState = { message: null, errors: {} };
   const [state, dispatch] = useFormState(createInvoice, initialState);
+
+
   return (
     <form action={dispatch}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6 w-full">
         {/* Customer Name */}
-        <div className="mb-4 w-full">
-          <label htmlFor="customer" className="mb-2 block text-sm font-medium">
-            Choose customer
-          </label>
-        </div>
         <div className="mb-4">
-        <label htmlFor="amount" className="mb-2 block text-sm font-medium">
-          Enter customer Id
-        </label>
-        <div className="relative mt-2 rounded-md">
-          <div className="relative">
-            <input
-              id="Id"
-              name="Id"
-              type="number"
-              step="0.01"
-              required
-              placeholder="Enter customer Id"
-              defaultValue=""
-              aria-describedby="customer-error"
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-            />
+          <label htmlFor="customerName" className="mb-2 block text-sm font-medium">
+            Enter Customer Name
+          </label>
+          <div className="relative mt-2 rounded-md">
+            <div className="relative">
+              <input
+                id="customerName"
+                name="customerName"
+                type="Text"
+                step="0.01"
+                defaultValue=""
+                placeholder="Enter Customer Name"
+                required
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              />
+            </div>
+            <div id="customer-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.customerName &&
+                state.errors.customerName.map((error: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+                ))}
+            </div>
           </div>
-          <div id="customer-error" aria-live="polite" aria-atomic="true">
-        {state.errors?.customerId &&
-          state.errors.customerId.map((error: string) => (
-            <p className="mt-2 text-sm text-red-500" key={error}>
-              {error}
-            </p>
-          ))}
-      </div>
         </div>
-      </div>
+
+        <div className="mb-4">
+          <label htmlFor="invoiceNumber" className="mb-2 block text-sm font-medium">
+            Invoice Number
+          </label>
+          <div className="relative mt-2 rounded-md">
+            <div className="relative">
+              <input
+                id="invoiceNumber"
+                name="invoiceNumber"
+                type="Number"
+                step="0.01"
+                defaultValue="2"
+                
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              />
+            </div>
+          </div>
+        </div>
+        
+      <div className="mb-4">
+          <label htmlFor="gstinNumber" className="mb-2 block text-sm font-medium">
+            Enter GSTIN Number
+          </label>
+          <div className="relative mt-2 rounded-md">
+            <div className="relative">
+              <input
+                id="gstinNumber"
+                name="gstinNumber"
+                type="Text"
+                step="0.01"
+                defaultValue=""
+                placeholder="Enter GSTIN Number"
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="billingAddress" className="mb-2 block text-sm font-medium">
+            Enter Billing Address
+          </label>
+          <div className="relative mt-2 rounded-md">
+            <div className="relative">
+              <input
+                id="billingAddress"
+                name="billingAddress"
+                type="Text"
+                step="0.01"
+                defaultValue=""
+                placeholder="Enter Billing Address"
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="shippingAddress" className="mb-2 block text-sm font-medium">
+            Enter Shipping Address
+          </label>
+          <div className="relative mt-2 rounded-md">
+            <div className="relative">
+              <input
+                id="shippingAddress"
+                name="shippingAddress"
+                type="Text"
+                step="0.01"
+                defaultValue=""
+                placeholder="Enter Shiping Address"
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              />
+            </div>
+          </div>
+        </div>
 
         {/* Invoice Amount */}
         <div className="mb-4">
           <label htmlFor="amount" className="mb-2 block text-sm font-medium">
-            Choose an amount
+            Total Amount
           </label>
           <div className="relative mt-2 rounded-md">
             <div className="relative">
@@ -65,54 +139,22 @@ export default function Form({customers}:{customers: CustomerField[]}) {
                 name="amount"
                 type="number"
                 step="0.01"
-                placeholder="Enter USD amount"
+                placeholder="Enter total amount"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
+            <div id="customer-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.amount &&
+                state.errors.amount.map((error: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+                ))}
+            </div>
           </div>
         </div>
 
-        {/* Invoice Status */}
-        <fieldset>
-          <legend className="mb-2 block text-sm font-medium">
-            Set the invoice status
-          </legend>
-          <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
-            <div className="flex gap-4">
-              <div className="flex items-center">
-                <input
-                  id="pending"
-                  name="status"
-                  type="radio"
-                  value="pending"
-                  className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
-                />
-                <label
-                  htmlFor="pending"
-                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
-                >
-                  Pending <ClockIcon className="h-4 w-4" />
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="paid"
-                  name="status"
-                  type="radio"
-                  value="paid"
-                  className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
-                />
-                <label
-                  htmlFor="paid"
-                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-medium text-white"
-                >
-                  Paid <CheckIcon className="h-4 w-4" />
-                </label>
-              </div>
-            </div>
-          </div>
-        </fieldset>
       </div>
       <div className="mt-6 flex justify-end gap-4">
         <Link
